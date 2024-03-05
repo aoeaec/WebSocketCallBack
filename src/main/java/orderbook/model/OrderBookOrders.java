@@ -8,15 +8,14 @@ import orderbook.serialization.OrderBookOrdersDeserializer;
 @JsonDeserialize(using = OrderBookOrdersDeserializer.class)
 @Data
 @Builder
-public class OrderBookOrders {
+public class OrderBookOrders{
     String price;
     String quantity;
 
     @Override
     public String toString() {
-        return "OrderBookOrders{" +
-                "price='" + price + '\'' +
-                ", quantity='" + quantity + '\'' +
-                '}';
+        return "[\"" + price + '\"' +
+                ",\"" + quantity + '\"' +
+                "]";
     }
 }
