@@ -99,7 +99,7 @@ public class OrderBookService implements CommandLineRunner {
 
     protected void printOrderBook(Map<String, List<OrderBookOrders>> localOrderBook) {
         OrderBook orderBook = new OrderBook();
-        //orderBook.setLastUpdateId(this.lastUpdateIdTracker);
+        orderBook.setLastUpdateId(this.lastUpdateIdTracker);
         if(showLatestOrders) {
             localOrderBook.get(BIDS).forEach(bid -> {
                 if (orderBook.getBids().size() >= numberOfEntriesToPrint) {

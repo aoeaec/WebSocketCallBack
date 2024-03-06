@@ -65,7 +65,7 @@ class OrderBookServiceTest {
         localOrderBook.put(ASKS,getWebSocketEvent().getAsks());
         localOrderBook.put(BIDS,getWebSocketEvent().getBids());
         orderBookService.printOrderBook(localOrderBook);
-        assertEquals("{lastUpdateId:0, \"bids\":[[\"0.00604800\",\"3.54400000\"], [\"0.00605200\",\"0.07900000\"], [\"0.00607900\",\"11.15200000\"]], \"asks\":[[\"0.00620100\",\"6.36500000\"], [\"0.00618000\",\"1.19600000\"], [\"0.00617800\",\"122.90600000\"]]}\n", outContent.toString());
+        assertEquals("{lastUpdateId:1, \"bids\":[[\"0.00604800\",\"3.54400000\"], [\"0.00605200\",\"0.07900000\"], [\"0.00607900\",\"11.15200000\"]], \"asks\":[[\"0.00620100\",\"6.36500000\"], [\"0.00618000\",\"1.19600000\"], [\"0.00617800\",\"122.90600000\"]]}\n", outContent.toString());
     }
 
     private OrderBookResponseDto getWebSocketEvent() {
