@@ -2,6 +2,7 @@ package orderbook.config;
 
 import orderbook.handler.BinanceWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,8 +14,12 @@ public class WebConfig {
 
     @Autowired
     BinanceWebSocketHandler binanceWebSocketHandler;
-    private final String webSocketUri = "wss://stream.binance.com:9443/ws/bnbbtc@depth";
-    private final String restUri = "https://api.binance.com/api/v3/depth?symbol=BNBBTC&limit=5";
+
+    @Value("${app.webSocket.url}")
+    private String webSocketUri;
+
+    @Value("${app.rest.url}")
+    private String restUri;
     @Bean
     public WebSocketConnectionManager wsConnectionManager() {
 

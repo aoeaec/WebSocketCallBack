@@ -22,8 +22,9 @@ public class OrderBookResponseDto {
     private long e;
     private String s;
     @JsonProperty("U")
-    private long u;
+    private long initialUpdateId;
 
+    @JsonProperty("u")
     private long lastUpdateId;
 
     @JsonProperty("a")
@@ -39,7 +40,7 @@ public class OrderBookResponseDto {
         return "OrderBookResponseDto{" +
                 "e=" + e +
                 ", s='" + s + '\'' +
-                ", u=" + u +
+                ", u=" + lastUpdateId +
                 ", asks=" + asks +
                 ", bids=" + bids +
                 '}';
