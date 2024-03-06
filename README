@@ -9,4 +9,4 @@ Todo
 6. displays first 3 orders on both buy and sell sides on a single line - Done
 7. Orders should be arranged by price - Done
 8. App should be terminated by Ctrl + C
-9. Move all config out to yml file
+9. Move all config out to yml file -- Done
