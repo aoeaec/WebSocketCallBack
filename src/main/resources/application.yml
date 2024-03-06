@@ -1,0 +1,11 @@
+app:
+  rest:
+    url: 'https://api.binance.com/api/v3/depth?symbol=BNBBTC&limit=5'
+  webSocket:
+    url: 'wss://stream.binance.com:9443/ws/bnbbtc@depth'
+  config:
+    depthLimit: 5
+    symbol: 'BNBBTC'
+    keepDuplicatePrice : true
+    showLatestOrders: false
+    numberOfEntriesToPrint : 3
