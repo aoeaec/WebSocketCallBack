@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static orderbook.constant.AppConstant.ASKS;
 import static orderbook.constant.AppConstant.BIDS;
@@ -47,7 +48,7 @@ public class OrderBookService implements CommandLineRunner {
 
 
 
-    private final Map<String, Set<OrderBookOrders>> localOrderBook = new ConcurrentHashMap<>();
+    private final Map<String, List<OrderBookOrders>> localOrderBook = new ConcurrentHashMap<>();
 
     private long lastUpdateIdTracker = 0;
 
@@ -55,8 +56,8 @@ public class OrderBookService implements CommandLineRunner {
 
 @PostConstruct
     public void init(){
-    localOrderBook.put(ASKS,new HashSet<>());
-    localOrderBook.put(BIDS,new HashSet<>());
+    localOrderBook.put(ASKS, new LinkedList<>());
+    localOrderBook.put(BIDS,new LinkedList<>());
 }
 
     @Override
@@ -92,8 +93,8 @@ public class OrderBookService implements CommandLineRunner {
     }
 
     protected void updateOrderBook(OrderBookResponseDto responseDto) {
-        updateOrderBookOrders(ASKS, responseDto.getAsks());
-        updateOrderBookOrders(BIDS, responseDto.getBids());
+        updateLocalOrderBook(ASKS, responseDto.getAsks());
+        updateLocalOrderBook(BIDS, responseDto.getBids());
         printOrderBook();
     }
 
@@ -125,11 +126,24 @@ public class OrderBookService implements CommandLineRunner {
         System.out.println(orderBook);
     }
 
-    protected void updateOrderBookOrders(String side, Set<OrderBookOrders> orderBookOrdersSet) {
-        List<OrderBookOrders> bookOrders = orderBookOrdersSet.stream().filter(orderBookOrders -> !(orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0))
+    protected void updateLocalOrderBook(String side, List<OrderBookOrders> orderBookOrdersSet) {
+        List<OrderBookOrders> bookOrdersToAdd = orderBookOrdersSet.stream().filter(orderBookOrders -> !(orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0))
                 .toList();
-        System.out.println("Adding for " + side + " :: " + bookOrders);
-        localOrderBook.get(side).addAll(bookOrders);
+
+        List<OrderBookOrders> bookOrdersToRemove = orderBookOrdersSet.stream().filter(orderBookOrders -> (orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0))
+                .toList();
+
+        Map<Boolean, List<OrderBookOrders> >
+                elementsToRemove = orderBookOrdersSet.stream().collect(
+                Collectors.partitioningBy(orderBookOrders -> (orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0)));
+        if(bookOrdersToRemove.size() > 0){
+            System.out.println("ddfdfd");
+        }
+
+        localOrderBook.put(side, localOrderBook.get(side).stream().dropWhile(element -> orderBookOrdersSet.stream().anyMatch(newElement -> newElement.equals(element))).collect(Collectors.toList()));
+        localOrderBook.get(side).addAll(bookOrdersToAdd);
+
+
     }
 
     private void startUpProcessing(){
@@ -144,7 +158,7 @@ public class OrderBookService implements CommandLineRunner {
         localOrderBook.put(BIDS, orderBookSnapshot.getBids());
     }
 
-    protected Map<String, Set<OrderBookOrders>> getLocalOrderBook(){
+    protected Map<String, List<OrderBookOrders>> getLocalOrderBook(){
     return localOrderBook;
     }
 
