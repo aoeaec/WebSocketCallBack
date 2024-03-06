@@ -96,6 +96,8 @@ public class OrderBookService implements CommandLineRunner {
             }
             orderBook.getAsks().addFirst(ask);
         });
+        orderBook.getBids().sort(Comparator.comparing(OrderBookOrders::getPrice));
+        orderBook.getAsks().sort(Comparator.comparing(OrderBookOrders::getPrice).reversed());
         System.out.println(orderBook);
     }
 

@@ -1,12 +1,12 @@
 This is a new order book program written in Java.
 
 Todo
-1. Connect to the Rest API
-2. Connect to the WebSocket API
-3. fetch the most recent Order Book from the Binance Exchange in real time
+1. Connect to the Rest API - Done
+2. Connect to the WebSocket API - Done
+3. fetch the most recent Order Book from the Binance Exchange in real time - Done
 4. User should be able to specify the market for which Order book is fetched
-5. The order book should be updated with events from Binance websocket API.
-6. displays first 3 orders on both buy and sell sides on a single line
-7. Orders should be arranged by price
+5. The order book should be updated with events from Binance websocket API. - Done
+6. displays first 3 orders on both buy and sell sides on a single line - Done
+7. Orders should be arranged by price - Done
 8. App should be terminated by Ctrl + C
 9. Move all config out to yml file
