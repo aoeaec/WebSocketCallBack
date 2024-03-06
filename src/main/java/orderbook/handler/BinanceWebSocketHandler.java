@@ -1,6 +1,7 @@
 package orderbook.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import orderbook.exception.BinanceException;
 import orderbook.model.OrderBookResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,7 +33,7 @@ public class BinanceWebSocketHandler implements WebSocketHandler {
 
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-
+        throw new BinanceException("Error connecting WebSocket ", exception);
     }
 
     @Override

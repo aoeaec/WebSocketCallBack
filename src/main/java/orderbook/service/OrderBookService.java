@@ -2,6 +2,7 @@ package orderbook.service;
 
 
 import jakarta.annotation.PostConstruct;
+import orderbook.exception.BinanceException;
 import orderbook.handler.BinanceWebSocketHandler;
 import orderbook.handler.WebSocketCallBackHandler;
 import orderbook.model.OrderBook;
@@ -94,12 +95,12 @@ public class OrderBookService implements CommandLineRunner {
     protected void updateOrderBook(OrderBookResponseDto responseDto) {
         updateLocalOrderBook(localOrderBook.get(ASKS), responseDto.getAsks());
         updateLocalOrderBook(localOrderBook.get(BIDS), responseDto.getBids());
-        printOrderBook(localOrderBook);
+        printOrderBook(localOrderBook, responseDto.getLastUpdateId());
     }
 
-    protected void printOrderBook(Map<String, List<OrderBookOrders>> localOrderBook) {
+    protected void printOrderBook(Map<String, List<OrderBookOrders>> localOrderBook, long lastUpdatedId) {
         OrderBook orderBook = new OrderBook();
-        orderBook.setLastUpdateId(this.lastUpdateIdTracker);
+        orderBook.setLastUpdateId(lastUpdatedId);
         if(showLatestOrders) {
             localOrderBook.get(BIDS).forEach(bid -> {
                 if (orderBook.getBids().size() >= numberOfEntriesToPrint) {
@@ -144,7 +145,13 @@ public class OrderBookService implements CommandLineRunner {
 
 
     private void getDepthSnapshot() {
-        OrderBookResponseDto orderBookSnapshot = webClient.get().retrieve().bodyToMono(OrderBookResponseDto.class).block();
+        OrderBookResponseDto orderBookSnapshot;
+    try {
+        orderBookSnapshot = webClient.get().retrieve().bodyToMono(OrderBookResponseDto.class).block();
+    } catch (Exception e) {
+        throw new BinanceException("Pease verify server connectivity and the argument passed", e);
+    }
+
         this.lastUpdateIdTracker = orderBookSnapshot.getLastUpdateId();
         localOrderBook.put(ASKS, orderBookSnapshot.getAsks());
         localOrderBook.put(BIDS, orderBookSnapshot.getBids());
