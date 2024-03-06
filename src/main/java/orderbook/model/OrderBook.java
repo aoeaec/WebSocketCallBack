@@ -14,10 +14,10 @@ public class OrderBook {
 
     @Override
     public String toString() {
-        return "OrderBook{" +
-                "lastUpdateId=" + lastUpdateId +
-                ", bids=" + bids +
-                ", asks=" + asks +
+        return "{" +
+                "lastUpdateId:" + lastUpdateId +
+                ", \"bids\":" + bids +
+                ", \"asks\":" + asks +
                 '}';
     }
 }

@@ -23,8 +23,8 @@ public class WebSocketCallBackHandlerTest {
         OrderBookResponseDto orderBookResponseDto = OrderBookResponseDto.builder()
                 .s("s")
                 .lastUpdateId(1l)
-                .bids(Set.of(OrderBookOrders.builder().price("1111").quantity(".090").build()))
-                .asks(Set.of(OrderBookOrders.builder().price("1111").quantity(".090").build())) .build();
+                .bids(List.of(OrderBookOrders.builder().price("1111").quantity(".090").build()))
+                .asks(List.of(OrderBookOrders.builder().price("1111").quantity(".090").build())) .build();
         webSocketCallBackHandler.onResponse(orderBookResponseDto);
 
     }

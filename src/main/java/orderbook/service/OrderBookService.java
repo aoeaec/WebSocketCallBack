@@ -18,7 +18,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static orderbook.constant.AppConstant.ASKS;
 import static orderbook.constant.AppConstant.BIDS;
@@ -66,7 +65,7 @@ public class OrderBookService implements CommandLineRunner {
 
         //Scanner scanner = new Scanner(System.in);
         //String line = scanner.nextLine();
-        //System.out.println(line);
+
         startUpProcessing();
 
         getDepthSnapshot();
@@ -93,14 +92,14 @@ public class OrderBookService implements CommandLineRunner {
     }
 
     protected void updateOrderBook(OrderBookResponseDto responseDto) {
-        updateLocalOrderBook(ASKS, responseDto.getAsks());
-        updateLocalOrderBook(BIDS, responseDto.getBids());
-        printOrderBook();
+        updateLocalOrderBook(localOrderBook.get(ASKS), responseDto.getAsks());
+        updateLocalOrderBook(localOrderBook.get(BIDS), responseDto.getBids());
+        printOrderBook(localOrderBook);
     }
 
-    protected void printOrderBook() {
+    protected void printOrderBook(Map<String, List<OrderBookOrders>> localOrderBook) {
         OrderBook orderBook = new OrderBook();
-        orderBook.setLastUpdateId(this.lastUpdateIdTracker);
+        //orderBook.setLastUpdateId(this.lastUpdateIdTracker);
         if(showLatestOrders) {
             localOrderBook.get(BIDS).forEach(bid -> {
                 if (orderBook.getBids().size() >= numberOfEntriesToPrint) {
@@ -126,22 +125,15 @@ public class OrderBookService implements CommandLineRunner {
         System.out.println(orderBook);
     }
 
-    protected void updateLocalOrderBook(String side, List<OrderBookOrders> orderBookOrdersSet) {
+    private void updateLocalOrderBook(List<OrderBookOrders> currentLocalBook, List<OrderBookOrders> orderBookOrdersSet) {
         List<OrderBookOrders> bookOrdersToAdd = orderBookOrdersSet.stream().filter(orderBookOrders -> !(orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0))
                 .toList();
 
-        List<OrderBookOrders> bookOrdersToRemove = orderBookOrdersSet.stream().filter(orderBookOrders -> (orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0))
-                .toList();
-
-        Map<Boolean, List<OrderBookOrders> >
-                elementsToRemove = orderBookOrdersSet.stream().collect(
-                Collectors.partitioningBy(orderBookOrders -> (orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0)));
-        if(bookOrdersToRemove.size() > 0){
-            System.out.println("ddfdfd");
+        for (OrderBookOrders entry : orderBookOrdersSet) {
+            currentLocalBook.remove(entry);
         }
 
-        localOrderBook.put(side, localOrderBook.get(side).stream().dropWhile(element -> orderBookOrdersSet.stream().anyMatch(newElement -> newElement.equals(element))).collect(Collectors.toList()));
-        localOrderBook.get(side).addAll(bookOrdersToAdd);
+        currentLocalBook.addAll(bookOrdersToAdd);
 
 
     }

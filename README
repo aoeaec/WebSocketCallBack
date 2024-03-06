@@ -10,3 +10,9 @@ Todo
 7. Orders should be arranged by price - Done
 8. App should be terminated by Ctrl + C
 9. Move all config out to yml file -- Done
+
+
+
+Improvements :
+Updating of the localOrderBook should be better.
+
