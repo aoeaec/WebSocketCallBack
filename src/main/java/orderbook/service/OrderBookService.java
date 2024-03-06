@@ -73,27 +73,30 @@ public class OrderBookService implements CommandLineRunner {
     }
 
     protected void updateOrderBook(OrderBookResponseDto responseDto) {
-/*        orderBook.setLastUpdateId(responseDto.getLastUpdateId());
-        responseDto.getBids().forEach(bid -> {
+        updateOrderBookOrders("ASKS", responseDto.getAsks());
+        updateOrderBookOrders("BIDS", responseDto.getBids());
+        printOrderBook();
+    }
+
+    private void printOrderBook() {
+        orderBook.setLastUpdateId(this.updateIdTracker);
+        localOrderBook.get("BIDS").forEach(bid -> {
             if(orderBook.getBids().size()>=3) {
-                System.out.println("To be removed :: " + orderBook.getBids().getLast());
+                //System.out.println("To be removed :: " + orderBook.getBids().getLast());
                 orderBook.getBids().removeLast();
             }
 
             orderBook.getBids().addFirst(bid);
-            System.out.println("To be addded :: " + orderBook.getBids().getFirst());
+            //System.out.println("To be addded :: " + orderBook.getBids().getFirst());
         });
 
-        responseDto.getAsks().forEach(ask -> {
+        localOrderBook.get("ASKS").forEach(ask -> {
             if(orderBook.getAsks().size()>=3) {
                 orderBook.getAsks().removeLast();
             }
             orderBook.getAsks().addFirst(ask);
         });
-        System.out.println(orderBook);*/
-
-        updateOrderBookOrders("ASKS", responseDto.getAsks());
-        updateOrderBookOrders("BIDS", responseDto.getBids());
+        System.out.println(orderBook);
     }
 
     private void updateOrderBookOrders(String side, List<OrderBookOrders> orderBookOrdersList) {
