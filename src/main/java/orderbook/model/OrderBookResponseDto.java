@@ -1,9 +1,11 @@
 package orderbook.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -13,21 +15,24 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class OrderBookResponseDto {
 
     @JsonProperty("E")
-    public long e;
-    public String s;
+    private long e;
+    private String s;
     @JsonProperty("U")
-    public long u;
+    private long u;
 
-    public long lastUpdateId;
+    private long lastUpdateId;
 
     @JsonProperty("a")
-    public List<OrderBookOrders> asks;
+    @JsonAlias("asks")
+    private List<OrderBookOrders> asks;
 
     @JsonProperty("b")
-    public List<OrderBookOrders> bids;
+    @JsonAlias("bids")
+    private List<OrderBookOrders> bids;
 
     @Override
     public String toString() {

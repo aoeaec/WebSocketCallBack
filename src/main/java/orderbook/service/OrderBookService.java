@@ -4,6 +4,7 @@ package orderbook.service;
 import orderbook.handler.BinanceWebSocketHandler;
 import orderbook.handler.WebSocketCallBackHandler;
 import orderbook.model.OrderBook;
+import orderbook.model.OrderBookOrders;
 import orderbook.model.OrderBookResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Component
 public class OrderBookService implements CommandLineRunner {
@@ -33,7 +35,9 @@ public class OrderBookService implements CommandLineRunner {
 
     private OrderBook orderBook = new OrderBook();
 
-    public static ConcurrentHashMap<String, List<BigDecimal>> map = new ConcurrentHashMap<String, List<BigDecimal>>();
+    private Map<String, List<OrderBookOrders>> localOrderBook = new ConcurrentHashMap<>();
+
+    private long updateIdTracker = 0;
 
 
 
@@ -69,8 +73,8 @@ public class OrderBookService implements CommandLineRunner {
     }
 
     protected void updateOrderBook(OrderBookResponseDto responseDto) {
-        orderBook.setLastUpdateId(responseDto.lastUpdateId);
-        responseDto.bids.forEach(bid -> {
+/*        orderBook.setLastUpdateId(responseDto.getLastUpdateId());
+        responseDto.getBids().forEach(bid -> {
             if(orderBook.getBids().size()>=3) {
                 System.out.println("To be removed :: " + orderBook.getBids().getLast());
                 orderBook.getBids().removeLast();
@@ -80,13 +84,23 @@ public class OrderBookService implements CommandLineRunner {
             System.out.println("To be addded :: " + orderBook.getBids().getFirst());
         });
 
-        responseDto.asks.forEach(ask -> {
+        responseDto.getAsks().forEach(ask -> {
             if(orderBook.getAsks().size()>=3) {
                 orderBook.getAsks().removeLast();
             }
             orderBook.getAsks().addFirst(ask);
         });
-        System.out.println(orderBook);
+        System.out.println(orderBook);*/
+
+        updateOrderBookOrders("ASKS", responseDto.getAsks());
+        updateOrderBookOrders("BIDS", responseDto.getBids());
+    }
+
+    private void updateOrderBookOrders(String side, List<OrderBookOrders> orderBookOrdersList) {
+        List<OrderBookOrders> bookOrders = orderBookOrdersList.stream().filter(orderBookOrders -> !orderBookOrders.getNumericalValueForQuantity().equals(BigDecimal.ZERO))
+                .collect(Collectors.toList());
+        System.out.println("Adding for " + side + " :: " + bookOrders);
+        localOrderBook.get(side).addAll(bookOrders);
     }
 
     private void startUpProcessing(){
@@ -95,12 +109,12 @@ public class OrderBookService implements CommandLineRunner {
 
 
     private void getDepthSnapshot() {
-        OrderBookResponseDto orderBook = webClient.get().retrieve().bodyToMono(OrderBookResponseDto.class).block();
-        map.put("sssss", List.of(BigDecimal.TEN));
-    }
-
-    public ConcurrentHashMap<String, List<BigDecimal>> updateOrderBook() {
-        return map;
+        OrderBookResponseDto orderBookSnapshot = webClient.get().retrieve().bodyToMono(OrderBookResponseDto.class).block();
+        this.updateIdTracker = orderBookSnapshot.getLastUpdateId();
+       // orderBook.setLastUpdateId(orderBookSnapshot.getLastUpdateId());
+        localOrderBook.put("ASKS", orderBookSnapshot.getAsks());
+        //orderBook.setAsks(orderBookSnapshot.asks.stream().collect(Collectors.toList()));
+        localOrderBook.put("BIDS", orderBookSnapshot.getBids());
     }
 
 }
