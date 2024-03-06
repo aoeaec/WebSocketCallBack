@@ -1,5 +1,6 @@
 package orderbook.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import orderbook.handler.BinanceWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,16 +24,19 @@ public class WebConfig {
     @Bean
     public WebSocketConnectionManager wsConnectionManager() {
 
-        WebSocketConnectionManager manager = new WebSocketConnectionManager(
+        return new WebSocketConnectionManager(
                 new StandardWebSocketClient(),
                 binanceWebSocketHandler,
                 this.webSocketUri);
-
-        return manager;
     }
 
     @Bean
     public WebClient webClient() {
         return WebClient.builder().baseUrl(restUri).build();
+    }
+
+    @Bean
+    public ObjectMapper getObjectMapper() {
+        return new ObjectMapper();
     }
 }

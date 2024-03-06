@@ -1,6 +1,7 @@
 package orderbook.service;
 
 
+import jakarta.annotation.PostConstruct;
 import orderbook.handler.BinanceWebSocketHandler;
 import orderbook.handler.WebSocketCallBackHandler;
 import orderbook.model.OrderBook;
@@ -17,7 +18,6 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static orderbook.constant.AppConstant.ASKS;
 import static orderbook.constant.AppConstant.BIDS;
@@ -45,15 +45,19 @@ public class OrderBookService implements CommandLineRunner {
     @Value("${app.config.numberOfEntriesToPrint}")
     private int numberOfEntriesToPrint;
 
-    private OrderBook orderBook = new OrderBook();
 
-    private final Map<String, List<OrderBookOrders>> localOrderBook = new ConcurrentHashMap<>();
+
+    private final Map<String, Set<OrderBookOrders>> localOrderBook = new ConcurrentHashMap<>();
 
     private long lastUpdateIdTracker = 0;
 
     private long lastEventId = 0;
 
-
+@PostConstruct
+    public void init(){
+    localOrderBook.put(ASKS,new HashSet<>());
+    localOrderBook.put(BIDS,new HashSet<>());
+}
 
     @Override
     public void run(String... args) throws Exception {
@@ -94,6 +98,7 @@ public class OrderBookService implements CommandLineRunner {
     }
 
     protected void printOrderBook() {
+        OrderBook orderBook = new OrderBook();
         orderBook.setLastUpdateId(this.lastUpdateIdTracker);
         if(showLatestOrders) {
             localOrderBook.get(BIDS).forEach(bid -> {
@@ -112,17 +117,17 @@ public class OrderBookService implements CommandLineRunner {
         } else {
             orderBook.getBids().clear();
             orderBook.getAsks().clear();
-            orderBook.getBids().addAll(localOrderBook.get(BIDS).subList(0,numberOfEntriesToPrint).stream().collect(Collectors.toList()));
-            orderBook.getAsks().addAll(localOrderBook.get(ASKS).subList(0,numberOfEntriesToPrint).stream().collect(Collectors.toList()));
+            orderBook.getBids().addAll(localOrderBook.get(BIDS).stream().limit(3).toList());
+            orderBook.getAsks().addAll(localOrderBook.get(ASKS).stream().limit(3).toList());
         }
         orderBook.getBids().sort(Comparator.comparing(OrderBookOrders::getPrice));
         orderBook.getAsks().sort(Comparator.comparing(OrderBookOrders::getPrice).reversed());
         System.out.println(orderBook);
     }
 
-    private void updateOrderBookOrders(String side, List<OrderBookOrders> orderBookOrdersList) {
-        List<OrderBookOrders> bookOrders = orderBookOrdersList.stream().filter(orderBookOrders -> !orderBookOrders.getNumericalValueForQuantity().equals(BigDecimal.ZERO))
-                .collect(Collectors.toList());
+    protected void updateOrderBookOrders(String side, Set<OrderBookOrders> orderBookOrdersSet) {
+        List<OrderBookOrders> bookOrders = orderBookOrdersSet.stream().filter(orderBookOrders -> !(orderBookOrders.getNumericalValueForQuantity().compareTo(BigDecimal.ZERO) == 0))
+                .toList();
         System.out.println("Adding for " + side + " :: " + bookOrders);
         localOrderBook.get(side).addAll(bookOrders);
     }
@@ -135,10 +140,12 @@ public class OrderBookService implements CommandLineRunner {
     private void getDepthSnapshot() {
         OrderBookResponseDto orderBookSnapshot = webClient.get().retrieve().bodyToMono(OrderBookResponseDto.class).block();
         this.lastUpdateIdTracker = orderBookSnapshot.getLastUpdateId();
-       // orderBook.setLastUpdateId(orderBookSnapshot.getLastUpdateId());
         localOrderBook.put(ASKS, orderBookSnapshot.getAsks());
-        //orderBook.setAsks(orderBookSnapshot.asks.stream().collect(Collectors.toList()));
         localOrderBook.put(BIDS, orderBookSnapshot.getBids());
+    }
+
+    protected Map<String, Set<OrderBookOrders>> getLocalOrderBook(){
+    return localOrderBook;
     }
 
 }

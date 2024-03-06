@@ -8,8 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
@@ -29,11 +28,11 @@ public class OrderBookResponseDto {
 
     @JsonProperty("a")
     @JsonAlias("asks")
-    private List<OrderBookOrders> asks;
+    private Set<OrderBookOrders> asks;
 
     @JsonProperty("b")
     @JsonAlias("bids")
-    private List<OrderBookOrders> bids;
+    private Set<OrderBookOrders> bids;
 
     @Override
     public String toString() {

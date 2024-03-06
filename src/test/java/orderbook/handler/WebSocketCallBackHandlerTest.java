@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Set;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {TestConfiguration.class})
@@ -22,8 +23,8 @@ public class WebSocketCallBackHandlerTest {
         OrderBookResponseDto orderBookResponseDto = OrderBookResponseDto.builder()
                 .s("s")
                 .lastUpdateId(1l)
-                .bids(List.of(OrderBookOrders.builder().price("1111").quantity(".090").build()))
-                .asks(List.of(OrderBookOrders.builder().price("1111").quantity(".090").build())) .build();
+                .bids(Set.of(OrderBookOrders.builder().price("1111").quantity(".090").build()))
+                .asks(Set.of(OrderBookOrders.builder().price("1111").quantity(".090").build())) .build();
         webSocketCallBackHandler.onResponse(orderBookResponseDto);
 
     }
