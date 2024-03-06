@@ -62,10 +62,6 @@ public class OrderBookService implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Enter word!");
-
-        //Scanner scanner = new Scanner(System.in);
-        //String line = scanner.nextLine();
 
         startUpProcessing();
 
