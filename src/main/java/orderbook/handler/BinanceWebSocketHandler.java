@@ -16,11 +16,13 @@ public class BinanceWebSocketHandler implements WebSocketHandler {
     private WebSocketCallBackHandler callBackHandler;
 
 
+    @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
     }
 
 
+    @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         ObjectMapper m = new ObjectMapper();
         OrderBookResponseDto orderBookResponseDto = m.readValue((String) message.getPayload(), OrderBookResponseDto.class);
@@ -34,14 +36,17 @@ public class BinanceWebSocketHandler implements WebSocketHandler {
      * Error handling.
      */
 
+    @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 
     }
 
+    @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
 
     }
 
+    @Override
     public boolean supportsPartialMessages() {
         return false;
     }
