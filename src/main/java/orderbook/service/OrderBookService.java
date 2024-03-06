@@ -19,6 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static orderbook.constant.AppConstant.ASKS;
+import static orderbook.constant.AppConstant.BIDS;
+
 @Component
 public class OrderBookService implements CommandLineRunner {
 
@@ -67,7 +70,6 @@ public class OrderBookService implements CommandLineRunner {
     }
 
     private void continueProcessing() {
-        //System.out.println(map);
 
         final Consumer<OrderBookResponseDto> processOrderBook = new Consumer<OrderBookResponseDto>() {
             @Override
@@ -83,26 +85,25 @@ public class OrderBookService implements CommandLineRunner {
             }
         };
         callBackHandler.setCallback(processOrderBook);
-
     }
 
     protected void updateOrderBook(OrderBookResponseDto responseDto) {
-        updateOrderBookOrders("ASKS", responseDto.getAsks());
-        updateOrderBookOrders("BIDS", responseDto.getBids());
+        updateOrderBookOrders(ASKS, responseDto.getAsks());
+        updateOrderBookOrders(BIDS, responseDto.getBids());
         printOrderBook();
     }
 
     protected void printOrderBook() {
         orderBook.setLastUpdateId(this.lastUpdateIdTracker);
         if(showLatestOrders) {
-            localOrderBook.get("BIDS").forEach(bid -> {
+            localOrderBook.get(BIDS).forEach(bid -> {
                 if (orderBook.getBids().size() >= numberOfEntriesToPrint) {
                     orderBook.getBids().removeLast();
                 }
                 orderBook.getBids().addFirst(bid);
             });
 
-            localOrderBook.get("ASKS").forEach(ask -> {
+            localOrderBook.get(ASKS).forEach(ask -> {
                 if (orderBook.getAsks().size() >= numberOfEntriesToPrint) {
                     orderBook.getAsks().removeLast();
                 }
@@ -111,8 +112,8 @@ public class OrderBookService implements CommandLineRunner {
         } else {
             orderBook.getBids().clear();
             orderBook.getAsks().clear();
-            orderBook.getBids().addAll(localOrderBook.get("BIDS").subList(0,numberOfEntriesToPrint).stream().collect(Collectors.toList()));
-            orderBook.getAsks().addAll(localOrderBook.get("ASKS").subList(0,numberOfEntriesToPrint).stream().collect(Collectors.toList()));
+            orderBook.getBids().addAll(localOrderBook.get(BIDS).subList(0,numberOfEntriesToPrint).stream().collect(Collectors.toList()));
+            orderBook.getAsks().addAll(localOrderBook.get(ASKS).subList(0,numberOfEntriesToPrint).stream().collect(Collectors.toList()));
         }
         orderBook.getBids().sort(Comparator.comparing(OrderBookOrders::getPrice));
         orderBook.getAsks().sort(Comparator.comparing(OrderBookOrders::getPrice).reversed());
@@ -135,9 +136,9 @@ public class OrderBookService implements CommandLineRunner {
         OrderBookResponseDto orderBookSnapshot = webClient.get().retrieve().bodyToMono(OrderBookResponseDto.class).block();
         this.lastUpdateIdTracker = orderBookSnapshot.getLastUpdateId();
        // orderBook.setLastUpdateId(orderBookSnapshot.getLastUpdateId());
-        localOrderBook.put("ASKS", orderBookSnapshot.getAsks());
+        localOrderBook.put(ASKS, orderBookSnapshot.getAsks());
         //orderBook.setAsks(orderBookSnapshot.asks.stream().collect(Collectors.toList()));
-        localOrderBook.put("BIDS", orderBookSnapshot.getBids());
+        localOrderBook.put(BIDS, orderBookSnapshot.getBids());
     }
 
 }
